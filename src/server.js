@@ -7,17 +7,10 @@ dotenv.config();
 import admin  from 'firebase-admin';
 import cors from 'cors';
 
-const serviceAccount = JSON.parse(fs.readFileSync(path.join(dirname(fileURLToPath(import.meta.url)), '../sewarproject-7bc35-firebase-adminsdk-pnhw7-90f1b1d77e.json'), 'utf8'));
-
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 const app = express(); 
 const PORT = process.env.PORT || 3000;
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import fs from 'fs';
- 
- 
 
 // Middleware
 app.use(cors()); 

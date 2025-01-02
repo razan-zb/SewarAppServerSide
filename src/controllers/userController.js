@@ -17,8 +17,11 @@ export class UserController {
 
 
   static async loginUser(req, res) {
+    console.log("name: ");
     const { name, password } = req.body;
     const user = await UserService.loginUser(name, password);
+    console.log("name: ",name);
+    console.log("password: ",password);
     if (user) {
       // Generate token
       const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });

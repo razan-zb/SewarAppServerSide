@@ -2,48 +2,61 @@ import express from 'express';
 import routes from './routes/index.js';
 import { connectDb } from './db/index.js';
 import dotenv from 'dotenv';
-dotenv.config();
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import fs from 'fs';
-
-import admin  from 'firebase-admin';
+import admin from 'firebase-admin';
 import cors from 'cors';
 
-const serviceAccount = JSON.parse(fs.readFileSync(path.join(dirname(fileURLToPath(import.meta.url)), '../sewarproject-7bc35-firebase-adminsdk-pnhw7-90f1b1d77e.json'), 'utf8'));
+// Load environment variables
+dotenv.config();
 
-
-const app = express(); 
+// Constants
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 
- 
- 
+// Firebase service account
+const serviceAccount = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, '../sewarproject-7bc35-firebase-adminsdk-pnhw7-90f1b1d77e.json'),
+    'utf8'
+  )
+);
 
-// Middleware
-app.use(cors()); 
-app.use(express.json());
-app.use(routes);
-// Firebase connection
+// Initialize Firebase
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: "sewarproject-7bc35.appspot.com" 
+  storageBucket: 'sewarproject-7bc35.appspot.com',
 });
 
 export const bucket = admin.storage().bucket();
-// Connect to the database and start the server
+
+const app = express();
+
+// Middleware
+app.use(cors({ origin: '*' })); 
+app.use(express.json());
+
+app.use('/api', routes);
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
 const startServer = async () => {
   try {
-    await connectDb(); // Connect to MongoDB    
-    app.get('/', (req, res) => {
-      res.send('Hello World!');
-    });
+    await connectDb(); 
+    console.log('Connected to MongoDB');
 
     app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
     });
   } catch (error) {
     console.error('Error connecting to the database:', error);
-    process.exit(1); // Exit the process with an error code
+    process.exit(1); 
   }
 };
+
+// Start the server
 startServer();
